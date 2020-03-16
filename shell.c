@@ -25,6 +25,7 @@ void execute_cd (void );
 void execute_exit (void); 
 void execute_dir_or_ls(void);
 void execute_pwd(void) ; 
+void execute_echo(void);
 /*----------------------------------*/
 
 void listaDir (void); 
@@ -67,6 +68,9 @@ int main(int argc, char const *argv[])
 			else if (strcmp (comando, "dir") ==0 || strcmp(comando, "ls")==0 )execute_dir_or_ls(); 
 
 			else if (strcmp(comando,"pwd") ==0 ) execute_pwd () ; 
+
+			else if (strcmp(comando,"echo")==0 ) execute_echo() ; 
+
 		}		
 	}while(continuar);
 
@@ -124,4 +128,62 @@ void execute_dir_or_ls(void){
 
 void execute_pwd (void) {
 	printf("%s\n", PWD);
+}
+
+void execute_echo (void){
+	if (!args[1]) 
+		return; 
+	int i,j,k =0;
+	char aux [6]; 
+
+	/*
+	int  i =0 , maxsize = 64 ;
+    char c, * buf ;
+
+	//esto es para hacerle echo a todo lo que se pone en la entrada estandar
+    if (argc == 1 ) {
+
+        for(;;) {
+            buf = calloc(maxsize, sizeof(char));
+            while (read(STDIN_FILENO,&c,1)>0&&c!='\n'){
+                buf[i++] = c ;
+                if (i==maxsize-1){
+                    maxsize*=2;
+                    if (!(buf=realloc(buf,maxsize))){
+                        printf("Error while allocating memory\n");
+                        exit(1);
+                    }
+                }
+            }
+            buf[i] = '\0';
+            maxsize=64 ;
+            i=0;
+            printf("%s\n",buf);
+            free(buf);
+        }
+    }
+    */
+
+	while(args[++k]){
+		for (i=0 ; i<strlen(args[k]); i++){
+			if (args[k][i]!= '$')printf("%c", args[k][i]);
+			else {
+				j=-1;
+				while(++j<5&&strlen(args[k]) && args[k][i+j+1]!='\0')
+					aux [j] = args[k][i+j+1] ; 
+				aux[j] = '\0';
+				if (strcmp(aux,"SHELL") ==0 )
+					printf("%s\n", SHELL) , i+=5;
+				else if (strncmp(aux,"PATH",4)==0)
+					printf("%s\n", PATH), i+=4;
+				else if (strncmp(aux , "PWD",3)==0)
+					printf("%s\n", PWD) , i+=3;
+				else if (strncmp(aux , "HOME",4) == 0 )
+					printf("%s\n", HOME ), i+=4;
+				else printf("%s\n", "$");
+			}
+		}
+		printf(" ");
+	} 
+	printf("\n");
 }
