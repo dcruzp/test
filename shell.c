@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/wait.h>
 #define max_args 13 
 #define maxln_Com_Amb 105 
 
@@ -26,6 +27,7 @@ void execute_exit (void);
 void execute_dir_or_ls(void);
 void execute_pwd(void) ; 
 void execute_echo(void);
+void execute_clear(void); 
 /*----------------------------------*/
 
 void listaDir (void); 
@@ -62,15 +64,12 @@ int main(int argc, char const *argv[])
 			separaArgs(); 
 
 			if (strcmp (comando, "cd")==0 )execute_cd();
-
-			else if (strcmp(comando ,"exit")==0)execute_exit();
-
-			else if (strcmp (comando, "dir") ==0 || strcmp(comando, "ls")==0 )execute_dir_or_ls(); 
-
+			else if (strcmp(comando,"exit")==0)execute_exit();
+			else if (strcmp(comando,"dir") ==0 || strcmp(comando, "ls")==0 )execute_dir_or_ls(); 
 			else if (strcmp(comando,"pwd") ==0 ) execute_pwd () ; 
-
 			else if (strcmp(comando,"echo")==0 ) execute_echo() ; 
-
+			else if (strcmp(comando,"clear")==0) execute_clear();
+			else printf("%s\n", "No se reconoce como un comando interno ");
 		}		
 	}while(continuar);
 
@@ -131,11 +130,7 @@ void execute_pwd (void) {
 }
 
 void execute_echo (void){
-	if (!args[1]) 
-		return; 
-	int i,j,k =0;
-	char aux [6]; 
-
+	
 	/*
 	int  i =0 , maxsize = 64 ;
     char c, * buf ;
@@ -164,6 +159,14 @@ void execute_echo (void){
     }
     */
 
+
+	if (!args[1]) 
+		return; 
+	int i,j,k =0;
+	char aux [6]; 
+
+
+
 	while(args[++k]){
 		for (i=0 ; i<strlen(args[k]); i++){
 			if (args[k][i]!= '$')printf("%c", args[k][i]);
@@ -186,4 +189,20 @@ void execute_echo (void){
 		printf(" ");
 	} 
 	printf("\n");
+}
+
+void execute_clear(void){
+	int pid =0, status ; 
+	pid = fork();
+	if (pid<0)printf("%s\n", "Error no se pudo crear un proceso hijo");
+	if (pid==0){
+		status = execvp("clear" , args) ; 
+		if(status){
+			printf("Error!%s no se reconoce o no se puede ejcutar \n", comando );
+			exit(1) ;
+		}		
+	}
+	else {
+		wait(NULL) ; 
+	}	
 }
